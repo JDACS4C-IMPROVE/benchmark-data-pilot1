@@ -1,0 +1,26 @@
+__pycache__/
+.DS_Store
+.idea
+!.gitignore
+
+# IMPROVE
+csa_data/
+csa_data_original/
+model_preds/
+
+# Folders with data
+# data_curation_final_aid/*
+# drug_data_aid/*
+# response_data_aid/combined_single_response_rescaled_agg
+
+# Exlude content but not folders:
+# https://stackoverflow.com/questions/4250063
+# exclude everything
+data_curation_final_aid/*
+drug_data_aid/*
+response_data_aid/*
+
+# exception to the rule
+!data_curation_final_aid/.gitkeep
+!drug_data_aid/.gitkeep
+!response_data_aid/.gitkeep
