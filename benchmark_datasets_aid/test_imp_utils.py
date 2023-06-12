@@ -15,10 +15,18 @@ fdir = Path(__file__).resolve().parent
 
 
 # Settings
-# y_col_name = "auc"
-y_col_name = "auc1"
+y_col_name = "auc"
+# y_col_name = "auc1"
 split = 0
-source_data_name = "CCLE"
+# -------
+# train_data_name = "CCLE"
+train_data_name = "GDSCv2"
+# -------
+val_data_name = train_data_name
+# -------
+# test_data_name = "CCLE"
+test_data_name = "gCSI"
+# -------
 
 
 # ------------------------
@@ -27,23 +35,31 @@ source_data_name = "CCLE"
 # import pdb; pdb.set_trace()
 print("\nLoad response train data ...")
 rs_tr = improve_utils.load_single_drug_response_data_v2(
-    source=source_data_name,
-    split_file_name=f"{source_data_name}_split_{split}_train.txt",
+    source=train_data_name,
+    split_file_name=f"{train_data_name}_split_{split}_train.txt",
     y_col_name=y_col_name, verbose=True)
 
 # Load val response data
 print("\nLoad response val data ...")
 rs_vl = improve_utils.load_single_drug_response_data_v2(
-    source=source_data_name,
-    split_file_name=f"{source_data_name}_split_{split}_val.txt",
+    source=val_data_name,
+    split_file_name=f"{val_data_name}_split_{split}_val.txt",
     y_col_name=y_col_name, verbose=True)
 
 # Load test response data
-print("\nLoad response test data ...")
-rs_te = improve_utils.load_single_drug_response_data_v2(
-    source=source_data_name,
-    split_file_name=f"{source_data_name}_split_{split}_test.txt",
-    y_col_name=y_col_name, verbose=True)
+if train_data_name == test_data_name:
+    print("\nLoad response test data ...")
+    rs_te = improve_utils.load_single_drug_response_data_v2(
+        source=test_data_name,
+        split_file_name=f"{test_data_name}_split_{split}_test.txt",
+        y_col_name=y_col_name, verbose=True)
+else:
+    # Load test response data
+    print("\nLoad response test data ...")
+    rs_te = improve_utils.load_single_drug_response_data_v2(
+        source=test_data_name,
+        split_file_name=f"{test_data_name}_all.txt",
+        y_col_name=y_col_name, verbose=True)
 
 
 # ----------------------
@@ -53,6 +69,8 @@ rs_te = improve_utils.load_single_drug_response_data_v2(
 print("\nLoad gene expression ...")
 ge = improve_utils.load_gene_expression_data(gene_system_identifier="Gene_Symbol")
 assert len(set(rs_tr[ig.canc_col_name]).intersection(set(ge.index))) == rs_tr[ig.canc_col_name].nunique(), "Something is missing..."
+assert len(set(rs_vl[ig.canc_col_name]).intersection(set(ge.index))) == rs_vl[ig.canc_col_name].nunique(), "Something is missing..."
+assert len(set(rs_te[ig.canc_col_name]).intersection(set(ge.index))) == rs_te[ig.canc_col_name].nunique(), "Something is missing..."
 # mt = improve_utils.load_dna_methylation_data(gene_system_identifier="TSS")
 # mc = improve_utils.load_mutation_count_data(gene_system_identifier="Gene_Symbol")
 # cn_d = improve_utils.load_discretized_copy_number_data(gene_system_identifier="Gene_Symbol")
@@ -77,6 +95,8 @@ if use_lincs:
 print("\nLoad Mordred descriptors ...")
 dd = improve_utils.load_mordred_descriptor_data()  # Mordred descriptors
 assert len(set(rs_tr[ig.drug_col_name]).intersection(set(dd.index))) == rs_tr[ig.drug_col_name].nunique(), "Something is missing..."
+assert len(set(rs_vl[ig.drug_col_name]).intersection(set(dd.index))) == rs_vl[ig.drug_col_name].nunique(), "Something is missing..."
+assert len(set(rs_te[ig.drug_col_name]).intersection(set(dd.index))) == rs_te[ig.drug_col_name].nunique(), "Something is missing..."
 # fp = improve_utils.load_morgan_fingerprint_data()  # Morgan fingerprints
 # assert len(set(rs_tr[ig.drug_col_name]).intersection(set(fp.index))) == rs_tr[ig.drug_col_name].nunique(), "Something is missing..."
 
@@ -196,6 +216,8 @@ if train:
     improve_utils.save_preds(pred_df, y_col_name, outpath, round_decimals=4)
 
     r2 = improve_utils.r_square(pred_df[y_col_name], y_pred)
+    print(f"Train: {train_data_name}")
+    print(f"Test:  {test_data_name}")
     print(f"R-square (random forest) {np.round(r2, 5)}")
 
 

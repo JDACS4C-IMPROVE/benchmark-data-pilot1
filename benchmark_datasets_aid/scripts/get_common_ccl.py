@@ -1,12 +1,16 @@
+from pathlib import Path
 import pandas as pd
 import numpy as np
 
 
 
-pd.set_option('display.max_columns', None)
+fdir = Path(__file__).reslove().parent
+# pd.set_option('display.max_columns', None)
 
-omics_data_dir = '../../Data_Curation_final_AID/Curated_CCLE_Multiomics_files/'
-auxiliary_data_dir = '../Auxiliary_Data/'
+# omics_data_dir = '../../Data_Curation_final_AID/Curated_CCLE_Multiomics_files/'
+omics_data_dir = fdir/'../../Data_Curation_final_AID/Curated_CCLE_Multiomics_files/'
+# auxiliary_data_dir = '../Auxiliary_Data/'
+auxiliary_data_dir = fdir/'../auxiliary_data/'
 
 # Load gene expression data
 ge = pd.read_csv(omics_data_dir + '/CCLE_AID_expression_full.csv', sep=',', engine='c', na_values=['na', '-', ''],

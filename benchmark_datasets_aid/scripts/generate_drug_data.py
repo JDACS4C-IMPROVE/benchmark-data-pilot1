@@ -1,31 +1,47 @@
+from pathlib import Path
+import os
 import pandas as pd
 import numpy as np
 
 
 
-pd.set_option('display.max_columns', None)
+fdir = Path(__file__).resolve().parent
+# pd.set_option('display.max_columns', None)
 
-drug_data_dir = '../../Drug_Data_AID/'
+# drug_data_dir = '../../Drug_Data_AID/'
+drug_data_dir = fdir/'../../drug_data_aid/'
 
-benchmark_data_dir = '../CSA_Data/'
+# benchmark_data_dir = '../CSA_Data/'
+benchmark_data_dir = fdir/'../csa_data/raw_data'
+os.makedirs(benchmark_data_dir, exist_ok=True)
+
+x_data_dir = benchmark_data_dir/'x_data'
+os.makedirs(x_data_dir, exist_ok=True)
 
 
 
 # Load drug fingerprint data
-df = pd.read_parquet(drug_data_dir + 'ecfp4_nbits512.parquet', engine='pyarrow')
+# df = pd.read_parquet(drug_data_dir + 'ecfp4_nbits512.parquet', engine='pyarrow')
+df = pd.read_parquet(drug_data_dir/'ecfp4_nbits512.parquet', engine='pyarrow')
+print("ECFP4", df.shape)
 df.index = df.DrugID
 df = df.iloc[:, 1:]
 print(df.drop_duplicates().shape[0]) # 1565
 
 # Load drug descriptor data
-dd = pd.read_parquet(drug_data_dir + 'mordred.parquet', engine='pyarrow')
+# dd = pd.read_parquet(drug_data_dir + 'mordred.parquet', engine='pyarrow')
+dd = pd.read_parquet(drug_data_dir/'mordred.parquet', engine='pyarrow')
+print("Mordred", dd.shape)
 dd.index = dd.DrugID
 dd = dd.iloc[:, 1:]
 print(dd.drop_duplicates().shape[0]) # 1566
 
 # Load drug information
-drug_info = pd.read_csv(drug_data_dir + 'drug_meta.tsv', sep='\t', engine='c', na_values=['na', '-', ''],
+# drug_info = pd.read_csv(drug_data_dir + 'drug_meta.tsv', sep='\t', engine='c', na_values=['na', '-', ''],
+#                         header=0, index_col=None, low_memory=False)
+drug_info = pd.read_csv(drug_data_dir/'drug_meta.tsv', sep='\t', engine='c', na_values=['na', '-', ''],
                         header=0, index_col=None, low_memory=False)
+print("Drug info", drug_info.shape)
 print(len(np.unique(drug_info.SMILES))) # 1781
 print(len(np.unique(drug_info.canSMILES))) # 1664
 
@@ -103,7 +119,8 @@ for i in range(len(uni_df_str)):
     drug_uni_id.iloc[uid] = ['Drug_' + str(i) for j in range(len(uid))]
 drug_uni_id.index = df.index
 drug_info['improve_chem_id'] = drug_uni_id.loc[drug_info.DrugID].values
-drug_info.to_csv(benchmark_data_dir + 'drug_info.txt', header=True, index=None, sep='\t', line_terminator='\r\n')
+# drug_info.to_csv(benchmark_data_dir + 'drug_info.txt', header=True, index=None, sep='\t', line_terminator='\r\n')
+drug_info.to_csv(x_data_dir/'drug_info.tsv', header=True, index=None, sep='\t', line_terminator='\r\n')
 uni_improve_chem_id, uni_index = np.unique(drug_info['improve_chem_id'], return_index=True)
 drug_info = drug_info.iloc[uni_index, ]
 
@@ -115,7 +132,15 @@ dd = dd.loc[drug_info.DrugID, :]
 print(np.sum(dd.index != drug_info.DrugID))
 dd.index = drug_info.improve_chem_id
 
-drug_info.loc[:, ['improve_chem_id', 'canSMILES']].to_csv(benchmark_data_dir + 'drug_SMILES.txt', header=True, index=False,
+# drug_info.loc[:, ['improve_chem_id', 'canSMILES']].to_csv(benchmark_data_dir + 'drug_SMILES.txt', header=True, index=False,
+#                                                        sep='\t', line_terminator='\r\n')
+# df.to_csv(benchmark_data_dir + 'drug_fingerprint.txt', header=True, index=True, sep='\t', line_terminator='\r\n')
+# dd.to_csv(benchmark_data_dir + 'drug_descriptor.txt', header=True, index=True, sep='\t', line_terminator='\r\n')
+
+drug_info.loc[:, ['improve_chem_id', 'canSMILES']].to_csv(x_data_dir/'drug_SMILES.tsv', header=True, index=False,
                                                        sep='\t', line_terminator='\r\n')
-df.to_csv(benchmark_data_dir + 'drug_fingerprint.txt', header=True, index=True, sep='\t', line_terminator='\r\n')
-dd.to_csv(benchmark_data_dir + 'drug_descriptor.txt', header=True, index=True, sep='\t', line_terminator='\r\n')
+df.to_csv(x_data_dir/'drug_ecfp4_nbits512.tsv', header=True, index=True, sep='\t', line_terminator='\r\n')
+dd.to_csv(x_data_dir/'drug_mordred.tsv', header=True, index=True, sep='\t', line_terminator='\r\n')
+
+
+print("\nFinished generating drug data.")
