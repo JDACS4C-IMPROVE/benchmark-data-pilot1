@@ -70,8 +70,7 @@ import pdb; pdb.set_trace()
 # cn_d = improve_utils.load_discretized_copy_number_data()
 # mtl = improve_utils.load_dna_methylation_data(gene_system_identifier="TSS")
 # -------
-# print("\nLoad gene expression ...")
-# ge = improve_utils.load_gene_expression_data(gene_system_identifier="Gene_Symbol")
+ge = improve_utils.load_gene_expression_data(gene_system_identifier="Gene_Symbol")
 # assert len(set(rs_tr[ig.canc_col_name]).intersection(set(ge.index))) == rs_tr[ig.canc_col_name].nunique(), "Something is missing..."
 # assert len(set(rs_vl[ig.canc_col_name]).intersection(set(ge.index))) == rs_vl[ig.canc_col_name].nunique(), "Something is missing..."
 # assert len(set(rs_te[ig.canc_col_name]).intersection(set(ge.index))) == rs_te[ig.canc_col_name].nunique(), "Something is missing..."
@@ -79,8 +78,8 @@ import pdb; pdb.set_trace()
 # mirna = improve_utils.load_mirna_expression_data()
 # mt_count = improve_utils.load_mutation_count_data()
 # mt_long = improve_utils.load_mutation_long_format_data()
-# mt = improve_utils.load_mutation_data()
-rppa = improve_utils.load_rppa_data()
+# mt, mt_meta = improve_utils.load_mutation_data()
+# rppa = improve_utils.load_rppa_data()
 
 # Gene selection (LINCS landmark genes)
 # TODO: we'll need to figure out how lincs genes will be provided for models!

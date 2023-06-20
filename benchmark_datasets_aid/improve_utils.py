@@ -496,22 +496,13 @@ def load_mutation_count_data(
 
 
 def load_mutation_long_format_data(
-    gene_system_identifier: Union[str, List[str]]="Gene_Symbol",
     sep: str="\t",
     verbose: bool=True) -> pd.DataFrame:
     """
     ...
     """
-    # level_map encodes the relationship btw the column and gene identifier system
-    # level_map = {"Ensembl": 2, "Entrez": 0, "Gene_Symbol": 1}
-    # header = [i for i in range(len(level_map))]
-
     # df = pd.read_csv(improve_globals.mutation_long_format_file_path, sep=sep, index_col=0, header=header)
     df = pd.read_csv(improve_globals.mutation_long_format_file_path, sep=sep)
-
-    # TODO
-    # What else should we do here??
-    # raise NotImplementedError("The function is not implemeted yet.")
     return df
 
 
@@ -524,10 +515,11 @@ def load_mutation_data(
     """
     df = pd.read_parquet(improve_globals.mutation_file_path)
 
-    df_meta = df.iloc[:, :13]
+    df_meta = df.iloc[:, :14]
     data_cols = ["Genome_Change"] + df.columns[14:].tolist()
     df_data = df[data_cols]
-    return df_data
+    df_data = df_data.set_index("Genome_Change")
+    return df_data, df_meta
 
 
 def load_rppa_data(
